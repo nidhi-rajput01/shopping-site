@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simple Adidas Shop</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f0f0f0;
+    }
+    header {
+      background: black;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 15px;
+    }
+    .hero {
+      background: gray;
+      color: white;
+      padding: 40px;
+      text-align: center;
+      font-size: 24px;
+    }
+    .products {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 20px;
+      gap: 20px;
+      justify-content: center;
+    }
+    .product {
+      background: white;
+      padding: 10px;
+      width: 200px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      transition: transform 0.2s;
+    }
+    .product:hover {
+      transform: scale(1.05);
+    }
+    .product img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .product img:hover {
+      transform: scale(1.1);
+    }
+    .product button {
+      margin-top: 10px;
+      padding: 10px 15px;
+      background: #000;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+    .product button:hover {
+      background: #444;
+    }
+    .cart {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: white;
+      padding: 10px 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      border-radius: 10px;
+      font-weight: bold;
+    }
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.8);
+    }
+    .modal-content {
+      margin: 10% auto;
+      display: block;
+      width: 80%;
+      max-width: 600px;
+      border-radius: 10px;
+    }
+    .close {
+      position: absolute;
+      top: 20px;
+      right: 40px;
+      font-size: 40px;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div><strong>Adidas Shop</strong></div>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">Products</a>
+      <a href="#">Contact</a>
+    </nav>
+  </header>
+
+  <div class="hero">Shop the Latest Adidas Gear</div>
+
+  <div class="products" id="product-list"></div>
+
+  <div class="cart">Cart: <span id="cart-count">0</span></div>
+
+  <!-- Image Modal -->
+  <div id="image-modal" class="modal">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <img class="modal-content" id="modal-img">
+  </div>
+
+  <script>
+    const products = [
+      { name: 'Sneakers', price: '$120', image: 'https://cdna.lystit.com/photos/amazon/04c4c4e8/adidas-Ftwr-White-Ftwr-White-Core-Noir-FTWR-White-FTWR-White-Core.jpeg' },
+      { name: 'Running Shoes', price: '$90', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80' },
+      { name: 'Hoodie', price: '$60', image: 'https://assets.adidas.com/images/w_1880,f_auto,q_auto/9af5955f81904f18b805ccfa21875f74_9366/IB4074_41_detail.jpg' }
+    ];
+
+    let cart = parseInt(getCookie("cart")) || 0;
+    const productList = document.getElementById('product-list');
+    const cartCount = document.getElementById('cart-count');
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-img');
+
+    cartCount.textContent = cart;
+
+    products.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'product';
+      item.innerHTML = `
+        <img src="${p.image}" alt="${p.name}" onclick="openModal('${p.image}')">
+        <h3>${p.name}</h3>
+        <p>${p.price}</p>
+        <button onclick="addToCart('${p.name}')">Add to Cart</button>
+      `;
+      productList.appendChild(item);
+    });
+
+    function addToCart(productName) {
+      cart++;
+      cartCount.textContent = cart;
+      setCookie("cart", cart, 7);
+      alert(`"${productName}" has been added to your cart.`);
+    }
+
+    // Modal functions
+    function openModal(imgUrl) {
+      modal.style.display = "block";
+      modalImg.src = imgUrl;
+    }
+
+    function closeModal() {
+      modal.style.display = "none";
+    }
+
+    // Cookie helper functions
+    function setCookie(name, value, days) {
+      const d = new Date();
+      d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+      document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`;
+    }
+
+    function getCookie(name) {
+      const cookieArr = document.cookie.split(";");
+      for (let i = 0; i < cookieArr.length; i++) {
+        const cookiePair = cookieArr[i].split("=");
+        if (cookiePair[0].trim() === name) return cookiePair[1];
+      }
+      return null;
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      if (event.target === modal) {
+        closeModal();
+      }
+    };
+  </script>
+</body>
+</html>
